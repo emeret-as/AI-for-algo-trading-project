@@ -2,6 +2,19 @@
 
 A strategy-agnostic, production-grade options analytics platform implementing a complete volatility surface pipeline — from raw market data to risk-managed portfolios.
 
+## Contributors
+
+| Name | Role |
+|------|------|
+| **Enzo MERET** | Volatility infrastructure, pricing, risk & pipeline orchestration |
+| **Nicolas GILHODES** | *Section à compléter* |
+| **Pierre SALMON** | *Section à compléter* |
+| **Yanis RAJHI** | *Section à compléter* |
+
+---
+
+# 📌 Contribution — Enzo MERET
+
 ## Architecture
 
 ```
@@ -106,3 +119,21 @@ project/
     ├── test_qc.py             # 8 tests
     └── test_scenarios.py      # 7 tests
 ```
+
+---
+
+# 📌 Contribution — Nicolas GILHODES
+
+*Section à compléter par Nicolas.*
+
+---
+
+# 📌 Contribution — Pierre SALMON
+
+*Section à compléter par Pierre.*
+
+---
+
+# 📌 Contribution — Yanis RAJHI
+
+*Section à compléter par Yanis.*
