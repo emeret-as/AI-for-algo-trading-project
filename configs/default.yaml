@@ -1,0 +1,153 @@
+# Volatility Infrastructure Platform Configuration
+# Version: v1.0
+# All thresholds and parameters are version-controlled per the PDF requirement.
+
+# ─── Environment ──────────────────────────────────────────────────────
+environment: development
+code_version: vol-infra-4.0.0
+
+# ─── Universe ─────────────────────────────────────────────────────────
+universe:
+  underlyings:
+    - symbol: SPY
+      security_type: STK
+      exchange: SMART
+      currency: USD
+  num_strikes: 21
+  strike_spacing_pct: 2.5
+  num_monthly_expiries: 6
+  include_weeklies: true
+  multiplier: 100.0
+
+# ─── Snapshot Builder ─────────────────────────────────────────────────
+snapshot:
+  cadence_seconds: 30
+  max_quote_age_seconds: 30.0
+  wide_spread_threshold_pct: 5.0
+  fallback_spot_method: last
+  stale_threshold_seconds: 60.0
+  version: snapshot_v1
+
+# ─── Forward Engine ───────────────────────────────────────────────────
+forward:
+  eligible_moneyness_band: 0.10
+  min_candidate_count: 2
+  outlier_mad_threshold: 3.0
+  min_bid_price: 0.05
+  max_spread_pct: 20.0
+  risk_free_rate: 0.05
+  fallback_policy: previous
+  version: forward_v1
+
+# ─── Quote QC ─────────────────────────────────────────────────────────
+qc_quote:
+  max_spread_pct: 15.0
+  min_bid: 0.01
+  max_quote_age_seconds: 30.0
+  min_open_interest: 0
+  min_volume: 0
+  version: qc_v1
+
+# ─── IV Solver ────────────────────────────────────────────────────────
+solver:
+  vol_lower_bound: 0.001
+  vol_upper_bound: 5.0
+  max_iterations: 100
+  price_tolerance: 1.0e-8
+  vol_tolerance: 1.0e-8
+  use_newton_acceleration: true
+  model_name: black76
+  version: solver_v1
+
+# ─── Surface Calibration ─────────────────────────────────────────────
+surface:
+  min_points_for_svi: 5
+  min_points_for_spline: 3
+  svi_a_bounds: [-0.5, 0.5]
+  svi_b_bounds: [0.001, 2.0]
+  svi_rho_bounds: [-0.99, 0.99]
+  svi_m_bounds: [-1.0, 1.0]
+  svi_sigma_bounds: [0.001, 2.0]
+  calendar_check: true
+  grid_moneyness_range: [-0.5, 0.5]
+  grid_moneyness_step: 0.01
+  version: surface_v1
+
+# ─── Risk & Greeks ────────────────────────────────────────────────────
+risk:
+  spot_bump_pct: 1.0
+  vol_bump_abs: 0.01
+  day_count_convention: ACT/365
+  version: risk_v1
+
+# ─── Scenario Grid ───────────────────────────────────────────────────
+scenarios:
+  version: scenarios_v1
+  grid:
+    - id: spot_down_10
+      spot_shift_pct: -10.0
+      vol_shift_abs: 0.0
+      time_roll_days: 0
+      description: "Spot -10%"
+    - id: spot_down_5
+      spot_shift_pct: -5.0
+      vol_shift_abs: 0.0
+      time_roll_days: 0
+      description: "Spot -5%"
+    - id: spot_up_5
+      spot_shift_pct: 5.0
+      vol_shift_abs: 0.0
+      time_roll_days: 0
+      description: "Spot +5%"
+    - id: spot_up_10
+      spot_shift_pct: 10.0
+      vol_shift_abs: 0.0
+      time_roll_days: 0
+      description: "Spot +10%"
+    - id: vol_up_5
+      spot_shift_pct: 0.0
+      vol_shift_abs: 0.05
+      time_roll_days: 0
+      description: "Vol +5pts"
+    - id: vol_down_5
+      spot_shift_pct: 0.0
+      vol_shift_abs: -0.05
+      time_roll_days: 0
+      description: "Vol -5pts"
+    - id: crash
+      spot_shift_pct: -10.0
+      vol_shift_abs: 0.10
+      time_roll_days: 0
+      description: "Crash: Spot -10% Vol +10pts"
+    - id: time_1d
+      spot_shift_pct: 0.0
+      vol_shift_abs: 0.0
+      time_roll_days: 1
+      description: "Time +1 day"
+
+# ─── QC Checks ────────────────────────────────────────────────────────
+qc_checks:
+  min_option_coverage_pct: 50.0
+  max_stale_ratio: 0.3
+  forward_stability_threshold: 0.02
+  iv_convergence_min_ratio: 0.95
+  surface_max_rmse: 0.05
+  version: checks_v1
+
+# ─── Data Retention ──────────────────────────────────────────────────
+retention:
+  tier1_raw_days: 90
+  tier2_snapshots_days: 365
+  tier3_analytics_days: 730
+  tier4_reports_days: -1  # indefinite
+
+# ─── Monitoring SLOs ─────────────────────────────────────────────────
+slos:
+  heartbeat_max_age_seconds: 30
+  raw_write_lag_max_seconds: 5
+  snapshot_freshness_tolerance_seconds: 60
+  forward_maturity_coverage_min_pct: 95
+  iv_convergence_min_pct: 97
+  surface_completion_min_pct: 95
+  scenario_completion_pct: 100
+  qc_report_daily: true
