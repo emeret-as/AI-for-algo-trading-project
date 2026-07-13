@@ -2,13 +2,23 @@
 
 A strategy-agnostic, production-grade options analytics platform implementing a complete volatility surface pipeline — from raw market data to risk-managed portfolios.
 
+## Quick start for collaborators
+
+```bash
+pip install -r requirements.txt
+npm install --prefix frontend
+python start_dashboard.py
+```
+
+Open http://127.0.0.1:3000/ when the app is ready.
+
 ## Contributors
 
 | Name | Role |
 |------|------|
 | **Enzo MERET** | Volatility infrastructure, pricing, risk & pipeline orchestration |
 | **Nicolas GILHODES** | *Section à compléter* |
-| **Pierre SALMON** | *Section à compléter* |
+| **Pierre SALMON** | React/Vite frontend, FastAPI backend, UI-friendly pipeline outputs |
 | **Yanis RAJHI** | *Section à compléter* |
 
 ---
@@ -130,7 +140,60 @@ project/
 
 # 📌 Contribution — Pierre SALMON
 
-*Section à compléter par Pierre.*
+I added a simple React-based dashboard and a lightweight FastAPI backend so the volatility pipeline can be launched and explored from a browser.
+
+## What was added
+
+- A React/Vite frontend in the `frontend/` folder
+- A FastAPI backend in `backend.py` that exposes the existing Python pipeline through HTTP
+- Additional UI-friendly pipeline outputs for QC, risk, scenarios, replay, and configuration
+
+## How to run the UI locally
+
+### 1) Install Python dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+### 2) Install frontend dependencies
+
+```bash
+cd frontend
+npm install
+```
+
+### 3) Start the backend
+
+From the project root:
+
+```bash
+python -m uvicorn backend:app --host 127.0.0.1 --port 8000
+```
+
+### 4) Start the frontend
+
+In a second terminal:
+
+```bash
+cd frontend
+npm run dev -- --host 0.0.0.0
+```
+
+Then open:
+
+- http://localhost:3000/ for the UI
+- http://localhost:8000/docs for the API documentation
+
+## What the UI allows
+
+- Run the volatility pipeline with custom parameters
+- Review QC checks and risk metrics
+- Explore scenario outcomes
+- Replay the pipeline over a date range
+- Inspect a configuration snapshot
+
+This makes the project easier to demo and to discuss with collaborators who are not comfortable running the Python CLI directly.
 
 ---
 
