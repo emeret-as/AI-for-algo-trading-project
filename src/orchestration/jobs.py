@@ -16,6 +16,7 @@ from typing import Dict, Any, Optional, List
 from src.utils.logging_helpers import build_logger, JobRunContext
 from src.storage.writers import PartitionedWriter
 from src.storage.schemas import Position
+from src.risk.aggregation import compute_line_items, aggregate_risk, risk_summary_table
 
 
 def run_full_pipeline(
@@ -63,7 +64,6 @@ def run_full_pipeline(
     from src.iv.solver import solve_chain_iv
     from src.surfaces.calibration import fit_surface
     from src.risk.greeks import compute_contract_greeks
-    from src.risk.aggregation import compute_line_items, aggregate_risk
     from src.risk.scenarios import run_scenario_engine, DEFAULT_SCENARIOS
     from src.qc.checks import (
         check_underlying_health, check_option_coverage,
@@ -191,6 +191,7 @@ def run_full_pipeline(
     aggregates = aggregate_risk(line_items)
     results["risk_positions"] = len(positions)
     results["risk_aggregates"] = len(aggregates)
+    results["risk_table"] = risk_summary_table(aggregates)
     logger.info(f"  Risk: {len(positions)} positions, {len(aggregates)} aggregates")
 
     # ─── Step 10: Scenarios ───────────────────────────────────────
@@ -198,6 +199,18 @@ def run_full_pipeline(
     scenario_results, summaries = run_scenario_engine(
         DEFAULT_SCENARIOS, positions, pricing_results,
     )
+    scenario_rows = [
+        {
+            'scenario': summary.scenario_id,
+            'portfolio': summary.portfolio_id,
+            'total_pnl': round(summary.total_pnl, 2),
+            'worst_contributor': summary.worst_contributor_key,
+            'worst_pnl': round(summary.worst_contributor_pnl, 2),
+            'positions': summary.position_count,
+        }
+        for summary in summaries
+    ]
+    results['scenario_table'] = scenario_rows
     results["scenario_count"] = len(summaries)
     if summaries:
         worst = min(summaries, key=lambda s: s.total_pnl)
@@ -217,6 +230,17 @@ def run_full_pipeline(
 
     qc_report = generate_qc_report(all_qc_checks)
     results["qc_report"] = qc_report
+    results["qc_table"] = [
+        {
+            "check": check.check_name,
+            "target": check.target_key,
+            "status": check.status,
+            "measured": check.measured_value,
+            "threshold": check.threshold_value,
+            "reason": check.reason_code,
+        }
+        for check in all_qc_checks
+    ]
     logger.info(
         f"  QC: {qc_report['summary']['pass']} pass, "
         f"{qc_report['summary']['warn']} warn, "
